@@ -1,0 +1,23 @@
+name: trace_viewer
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  riverpod: ^2.5.0
+  flutter_riverpod: ^2.4.10
+  source_span: ^1.8.0
+  source_maps: ^0.10.12
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
