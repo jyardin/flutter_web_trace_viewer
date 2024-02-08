@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _Section(
+                  _Panel(
                     child: TextFormField(
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -37,7 +37,7 @@ class MainApp extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Expanded(
-                          child: _Section(
+                          child: _Panel(
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: SizedBox(
@@ -59,7 +59,7 @@ class MainApp extends StatelessWidget {
                         ),
                         Expanded(
                           child: Consumer(
-                            builder: (context, ref, child) => _Section(
+                            builder: (context, ref, child) => _Panel(
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: SelectableText(
@@ -81,8 +81,8 @@ class MainApp extends StatelessWidget {
       );
 }
 
-class _Section extends StatelessWidget {
-  const _Section({required this.child});
+class _Panel extends StatelessWidget {
+  const _Panel({required this.child});
 
   final Widget child;
 
