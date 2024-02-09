@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:multi_split_view/multi_split_view.dart';
 import 'package:source_maps/source_maps.dart';
 
 void main() {
@@ -33,43 +34,43 @@ class MainApp extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    child: MultiSplitView(
+                      axis: Axis.horizontal,
+                      initialAreas: [
+                        Area(weight: 0.5),
+                        Area(weight: 0.5),
+                      ],
                       children: [
-                        Expanded(
-                          child: _Panel(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: SizedBox(
-                                width: 1000,
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    isDense: true,
-                                    border: InputBorder.none,
-                                    hintText: 'Copy your trace here',
-                                  ),
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
-                                  maxLines: null,
-                                  expands: true,
-                                  onChanged: (value) => ref.read(traceProvider.notifier).state = value,
+                        _Panel(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: 1000,
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  hintText: 'Copy your trace here',
                                 ),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                                maxLines: null,
+                                expands: true,
+                                onChanged: (value) => ref.read(traceProvider.notifier).state = value,
                               ),
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: Consumer(
-                            builder: (context, ref, child) => _Panel(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: SelectableText(
-                                  ref.watch(resultProvider).valueOrNull ?? 'Empty',
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
-                                ),
+                        Consumer(
+                          builder: (context, ref, child) => _Panel(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SelectableText(
+                                ref.watch(resultProvider).valueOrNull ?? 'Empty',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -113,10 +114,6 @@ final resultProvider = FutureProvider((ref) async {
   return lines.map((line) => line.toString()).join('\n');
 });
 
-extension on SourceMapSpan {
-  String format() => 'at $text @ $sourceUrl:${start.line + 1}:${start.column + 1}';
-}
-
 List<Line> parse(String input, Mapping parser) {
   final textLines = input.split('\n');
   final result = <Line>[];
@@ -144,4 +141,8 @@ class Line {
 
   @override
   String toString() => span?.format() ?? sourceLine;
+}
+
+extension on SourceMapSpan {
+  String format() => 'at $text @ $sourceUrl:${start.line + 1}:${start.column + 1}';
 }
