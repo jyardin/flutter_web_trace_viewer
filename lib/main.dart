@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 import 'package:source_maps/source_maps.dart';
@@ -10,40 +11,47 @@ void main() {
   runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends HookWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) => Consumer(
-        builder: (context, ref, child) => MaterialApp(
-          theme: ThemeData.dark(useMaterial3: true),
-          home: Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _Panel(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        labelText: 'Source map path',
-                        hintText: 'Path of your source map file',
-                      ),
-                      onChanged: (value) => ref.read(sourceMapPathProvider.notifier).state = value,
+  Widget build(BuildContext context) {
+    final initialTraceScrollController = useScrollController();
+    final translatedTraceScrollController = useScrollController();
+    return Consumer(
+      builder: (context, ref, child) => MaterialApp(
+        theme: ThemeData.dark(useMaterial3: true)
+            .copyWith(scrollbarTheme: ScrollbarThemeData(thumbVisibility: MaterialStateProperty.all(true))),
+        home: Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _Panel(
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      labelText: 'Source map path',
+                      hintText: 'Path of your source map file',
                     ),
+                    onChanged: (value) => ref.read(sourceMapPathProvider.notifier).state = value,
                   ),
-                  Expanded(
-                    child: MultiSplitView(
-                      axis: Axis.horizontal,
-                      initialAreas: [
-                        Area(weight: 0.5),
-                        Area(weight: 0.5),
-                      ],
-                      children: [
-                        _Panel(
+                ),
+                Expanded(
+                  child: MultiSplitView(
+                    axis: Axis.horizontal,
+                    initialAreas: [
+                      Area(weight: 0.5),
+                      Area(weight: 0.5),
+                    ],
+                    children: [
+                      _Panel(
+                        child: Scrollbar(
+                          controller: initialTraceScrollController,
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
+                            controller: initialTraceScrollController,
                             child: SizedBox(
                               width: 1000,
                               child: TextFormField(
@@ -60,10 +68,14 @@ class MainApp extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Consumer(
-                          builder: (context, ref, child) => _Panel(
+                      ),
+                      Consumer(
+                        builder: (context, ref, child) => _Panel(
+                          child: Scrollbar(
+                            controller: translatedTraceScrollController,
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
+                              controller: translatedTraceScrollController,
                               child: SelectableText(
                                 ref.watch(resultProvider).valueOrNull ?? 'Empty',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
@@ -71,15 +83,17 @@ class MainApp extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _Panel extends StatelessWidget {
